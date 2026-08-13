@@ -32,7 +32,7 @@ multi_fault_results = run_multi_fault_trials(
 
 app = FastAPI(
     title="Synthetic Telecom Network Digital Twin",
-    version="0.1.0",
+    version="1.0.0",
     description="Reproducible synthetic data only; not connected to an operator network.",
 )
 

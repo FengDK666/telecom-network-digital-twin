@@ -7,6 +7,8 @@ a live FastAPI/SSE digital-twin dashboard.
 
 ![MVP topology and protocol comparison](results/figures/mvp_summary.png)
 
+![Live synthetic twin replay](results/figures/live_twin_demo.gif)
+
 > This is an independent portfolio reconstruction using synthetic identifiers,
 > parameters, topology, and telemetry. It contains no employer code, operator
 > data, production endpoints, credentials, or proprietary protocol details.
@@ -140,6 +142,7 @@ telecom-twin experiment --output-dir results
 telecom-twin benchmark --output-dir results --trials-per-root 20
 telecom-twin online-evaluation --output-dir results
 telecom-twin multi-fault-benchmark --output-dir results --trials-per-scenario 20
+telecom-twin demo-gif --output results/figures/live_twin_demo.gif
 telecom-twin serve --host 127.0.0.1 --port 8000
 ```
 

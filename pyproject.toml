@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "telecom-network-digital-twin"
-version = "0.1.0"
+version = "1.0.0"
 description = "Synthetic telecom network operations and telemetry-strategy simulator"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -13,6 +13,7 @@ authors = [{name = "FengDK666"}]
 dependencies = [
   "fastapi>=0.110,<1",
   "matplotlib>=3.5",
+  "pillow>=9",
   "uvicorn>=0.27,<1",
 ]
 

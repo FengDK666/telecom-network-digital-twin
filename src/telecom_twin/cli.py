@@ -7,6 +7,7 @@ from pathlib import Path
 
 import uvicorn
 
+from telecom_twin.demo import export_demo_gif
 from telecom_twin.experiment import run_experiment
 from telecom_twin.multifault import run_multi_fault_benchmark
 from telecom_twin.online import export_online_evaluation
@@ -29,6 +30,10 @@ def main() -> None:
     multifault = subparsers.add_parser("multi-fault-benchmark")
     multifault.add_argument("--output-dir", type=Path, default=Path("results"))
     multifault.add_argument("--trials-per-scenario", type=int, default=20)
+    demo = subparsers.add_parser("demo-gif")
+    demo.add_argument(
+        "--output", type=Path, default=Path("results/figures/live_twin_demo.gif")
+    )
     args = parser.parse_args()
     if args.command == "experiment":
         for name, path in run_experiment(args.output_dir).items():
@@ -49,6 +54,9 @@ def main() -> None:
             args.output_dir, trials_per_scenario=args.trials_per_scenario
         ).items():
             print(f"{name}: {path}")
+        return
+    if args.command == "demo-gif":
+        print(f"gif: {export_demo_gif(args.output)}")
         return
     uvicorn.run("telecom_twin.api:app", host=args.host, port=args.port)
 
