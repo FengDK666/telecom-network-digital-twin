@@ -8,6 +8,7 @@ from pathlib import Path
 import uvicorn
 
 from telecom_twin.experiment import run_experiment
+from telecom_twin.multifault import run_multi_fault_benchmark
 from telecom_twin.online import export_online_evaluation
 from telecom_twin.robustness import run_benchmark
 
@@ -25,6 +26,9 @@ def main() -> None:
     benchmark.add_argument("--trials-per-root", type=int, default=20)
     online = subparsers.add_parser("online-evaluation")
     online.add_argument("--output-dir", type=Path, default=Path("results"))
+    multifault = subparsers.add_parser("multi-fault-benchmark")
+    multifault.add_argument("--output-dir", type=Path, default=Path("results"))
+    multifault.add_argument("--trials-per-scenario", type=int, default=20)
     args = parser.parse_args()
     if args.command == "experiment":
         for name, path in run_experiment(args.output_dir).items():
@@ -38,6 +42,12 @@ def main() -> None:
         return
     if args.command == "online-evaluation":
         for name, path in export_online_evaluation(args.output_dir).items():
+            print(f"{name}: {path}")
+        return
+    if args.command == "multi-fault-benchmark":
+        for name, path in run_multi_fault_benchmark(
+            args.output_dir, trials_per_scenario=args.trials_per_scenario
+        ).items():
             print(f"{name}: {path}")
         return
     uvicorn.run("telecom_twin.api:app", host=args.host, port=args.port)

@@ -29,5 +29,7 @@ curl --fail --silent 'http://127.0.0.1:8765/live/stream?interval_ms=20' \
     | grep --quiet '^data: '
 curl --fail --silent http://127.0.0.1:8765/dashboard \
     | grep --quiet 'Telecom Network Digital Twin'
+curl --fail --silent http://127.0.0.1:8765/experiments/multi-fault \
+    | python3 -c 'import json, sys; assert len(json.load(sys.stdin)) == 12'
 curl --fail --silent http://127.0.0.1:8765/openapi.json \
     | python3 -c 'import json, sys; print(sorted(json.load(sys.stdin)["paths"]))'

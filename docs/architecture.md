@@ -16,6 +16,8 @@ The first phase uses a deterministic in-memory digital-twin snapshot:
    per-node state, applies rolling anomaly detection, and exports evaluation artifacts.
 9. `dashboard.py` contains a dependency-free HTML/JavaScript topology view that
    consumes the live state through REST and Server-Sent Events (SSE).
+10. `multifault.py` correlates time-separated alarm cascades, ranks a root per
+    incident window, and maps root sets to downstream synthetic service endpoints.
 
 The API and experiment paths call the same topology, simulation, alarm, and
 protocol functions. There is no duplicate hidden implementation for the demo.
@@ -28,6 +30,7 @@ protocol functions. There is no duplicate hidden implementation for the demo.
 - `GET /alarms?limit=100`
 - `GET /experiments/protocols`
 - `GET /experiments/root-cause`
+- `GET /experiments/multi-fault`
 - `GET /dashboard`
 - `GET /live/state`
 - `POST /live/reset`
@@ -50,3 +53,15 @@ snapshot. SSE clients receive one JSON snapshot per frame. The replay stops at
 This design demonstrates online state transitions and streaming API behavior
 without claiming a distributed or hard-real-time architecture. The same engine
 backs manual REST stepping, SSE streaming, tests, and the exported evaluation.
+
+## Multi-fault analysis path
+
+The multi-fault benchmark constructs two causal alarm cascades from the same
+hierarchy used by single-fault ranking. A timestamp-gap correlator partitions
+the combined feed without access to the true labels. Each partition is ranked
+with the existing topology-and-propagation-time model, preserving one root per
+incident window. The union of downstream access descendants provides a simple
+service-impact set for recall and Jaccard evaluation.
+
+This is intentionally transparent and deterministic. It is not an event-bus
+implementation, a learned correlator, or a probabilistic graphical model.

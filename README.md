@@ -102,6 +102,32 @@ The browser dashboard at `/dashboard` renders live topology health and anomaly
 events from a Server-Sent Events stream. REST endpoints also support explicit
 reset, step, snapshot, and event-feed operations for deterministic testing.
 
+## Multi-fault correlation and service impact
+
+Phase 5 evaluates simultaneous fault analysis instead of assuming every alarm
+belongs to one incident. Twelve declared dual-fault scenarios cover independent
+branches and nested ancestor/descendant pairs. Each trial injects two alarm
+cascades 30 seconds apart, then applies 0/20/40% missing alarms and 0/2/4 false
+alarms. The full balanced benchmark contains **2,160 deterministic trials**.
+
+A global baseline ranks two roots from the combined alarm set. The correlation
+method first separates temporal incident windows, applies topology-and-time
+ranking within each window, and then maps predicted roots to downstream access
+service endpoints.
+
+| Dual-fault metric | Global Top-2 | Temporal correlation |
+|---|---:|---:|
+| Exact two-root match | 23.84% | **63.19%** |
+| Root-cause recall | 59.72% | **79.84%** |
+
+The correlated roots recover 94.32% of affected access services with an 84.19%
+service-set Jaccard score. Under 40% missing alarms plus four false alarms,
+exact root-pair match falls to 30.42% and service recall remains 87.04%. The
+stricter worst-case service Jaccard is 60.06% for independent faults and 77.33%
+for nested faults; overlapping nested impact sets make recall alone optimistic.
+
+![Dual-fault localization and service impact](results/figures/multi_fault_analysis.png)
+
 ## Quick start
 
 ```bash
@@ -113,6 +139,7 @@ pytest -q
 telecom-twin experiment --output-dir results
 telecom-twin benchmark --output-dir results --trials-per-root 20
 telecom-twin online-evaluation --output-dir results
+telecom-twin multi-fault-benchmark --output-dir results --trials-per-scenario 20
 telecom-twin serve --host 127.0.0.1 --port 8000
 ```
 
@@ -147,6 +174,11 @@ results/            Curated metrics and figure
   is not a general false-positive-rate claim or a calibrated production model.
 - The dashboard stores state in memory and provides no authentication, durable
   storage, horizontal scaling, or multi-user isolation.
+- Phase 5 assumes exactly two faults separated by 30 seconds and uses a fixed
+  12-second clustering gap. It does not solve unknown fault counts, overlapping
+  start times, flapping alarms, or long-running incident merging.
+- Synthetic access nodes stand in for service endpoints; no subscribers,
+  traffic classes, SLAs, or real business-impact values are modeled.
 - No availability, cybersecurity, or service-level guarantees are implied.
 
 ## License

@@ -9,6 +9,7 @@ from fastapi import FastAPI, Query
 from fastapi.responses import HTMLResponse, StreamingResponse
 
 from telecom_twin.dashboard import DASHBOARD_HTML
+from telecom_twin.multifault import run_multi_fault_trials
 from telecom_twin.online import OnlineTwin
 from telecom_twin.protocols import compare_protocols
 from telecom_twin.root_cause import evaluate_root_cause
@@ -21,6 +22,13 @@ alarms = generate_alarms(samples)
 protocol_results = compare_protocols(samples)
 root_cause_results = evaluate_root_cause(nodes, links)
 online_twin = OnlineTwin()
+multi_fault_results = run_multi_fault_trials(
+    nodes,
+    links,
+    trials_per_scenario=1,
+    missing_rates=(0.2,),
+    false_alarm_counts=(2,),
+)
 
 app = FastAPI(
     title="Synthetic Telecom Network Digital Twin",
@@ -63,6 +71,11 @@ def protocol_experiment() -> list[dict]:
 @app.get("/experiments/root-cause")
 def root_cause_experiment() -> list[dict]:
     return root_cause_results
+
+
+@app.get("/experiments/multi-fault")
+def multi_fault_experiment() -> list[dict]:
+    return multi_fault_results
 
 
 @app.get("/dashboard", response_class=HTMLResponse)
