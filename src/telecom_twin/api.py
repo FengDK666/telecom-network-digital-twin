@@ -5,6 +5,7 @@ from __future__ import annotations
 from fastapi import FastAPI, Query
 
 from telecom_twin.protocols import compare_protocols
+from telecom_twin.root_cause import evaluate_root_cause
 from telecom_twin.simulation import generate_alarms, generate_telemetry
 from telecom_twin.topology import generate_topology
 
@@ -12,6 +13,7 @@ nodes, links = generate_topology()
 samples = generate_telemetry(nodes)
 alarms = generate_alarms(samples)
 protocol_results = compare_protocols(samples)
+root_cause_results = evaluate_root_cause(nodes, links)
 
 app = FastAPI(
     title="Synthetic Telecom Network Digital Twin",
@@ -49,3 +51,8 @@ def alarm_feed(limit: int = Query(default=100, ge=1, le=1000)) -> list[dict]:
 @app.get("/experiments/protocols")
 def protocol_experiment() -> list[dict]:
     return protocol_results
+
+
+@app.get("/experiments/root-cause")
+def root_cause_experiment() -> list[dict]:
+    return root_cause_results

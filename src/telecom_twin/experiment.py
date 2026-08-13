@@ -9,6 +9,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 from telecom_twin.protocols import compare_protocols
+from telecom_twin.root_cause import evaluate_root_cause
 from telecom_twin.simulation import generate_alarms, generate_telemetry
 from telecom_twin.topology import generate_topology
 
@@ -31,14 +32,17 @@ def run_experiment(output_dir: str | Path) -> dict[str, Path]:
     samples = generate_telemetry(nodes)
     alarms = generate_alarms(samples)
     strategies = compare_protocols(samples)
+    root_cause_rows = evaluate_root_cause(nodes, links)
     telemetry_path = write_rows([sample.to_dict() for sample in samples], output / "telemetry.csv")
     alarms_path = write_rows([alarm.to_dict() for alarm in alarms], output / "alarms.csv")
     protocol_path = write_rows(strategies, output / "protocol_comparison.csv")
+    root_cause_path = write_rows(root_cause_rows, output / "root_cause_evaluation.csv")
     figure_path = plot_experiment(nodes, links, strategies, output / "figures" / "mvp_summary.png")
     return {
         "telemetry": telemetry_path,
         "alarms": alarms_path,
         "protocol_comparison": protocol_path,
+        "root_cause_evaluation": root_cause_path,
         "figure": figure_path,
     }
 

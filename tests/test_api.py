@@ -13,6 +13,7 @@ def test_api_exposes_synthetic_snapshot() -> None:
     assert len(topology["links"]) == 27
     assert len(client.get("/telemetry/latest").json()) == 27
     assert len(client.get("/experiments/protocols").json()) == 2
+    assert len(client.get("/experiments/root-cause").json()) == 3
 
 
 def test_latest_telemetry_unknown_node_returns_empty_list() -> None:

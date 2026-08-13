@@ -21,6 +21,7 @@ protocol functions. There is no duplicate hidden implementation for the demo.
 - `GET /telemetry/latest?node_id=access-07`
 - `GET /alarms?limit=100`
 - `GET /experiments/protocols`
+- `GET /experiments/root-cause`
 
 FastAPI supplies an OpenAPI document and interactive documentation at `/docs`.
 The API runs on loopback by default and does not include authentication because

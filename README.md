@@ -21,6 +21,8 @@ alarm analysis, management-protocol simulation, and a FastAPI read API.
 - FastAPI endpoints for health, topology, latest telemetry, alarms, and
   protocol-experiment results.
 - CSV artifacts, a deterministic summary figure, unit tests, and GitHub CI.
+- Topology-aware root-cause ranking for access, aggregation, and core fault
+  propagation with deterministic missing and false alarms.
 
 ## Quantitative result
 
@@ -39,6 +41,16 @@ with 10-second fixed polling, the adaptive delta strategy:
 This is an explicit bandwidth/freshness tradeoff: adaptive updates reduce
 management-plane traffic and react immediately to the injected change, but
 unchanged metrics can remain older between 30-second heartbeats.
+
+## Root-cause localization
+
+Phase 2 adds access congestion, aggregation degradation, and core-node failure
+scenarios. Alarm observations contain deterministic missing and false alarms.
+A transparent topology-aware score balances observed-alarm recall, predicted
+impact precision, and whether the candidate itself alarms. The true root ranks
+first in all three included scenarios (Top-1 and Top-3 accuracy both 100%).
+This small synthetic evaluation demonstrates the method but is not evidence of
+production fault-localization accuracy.
 
 ## Quick start
 
