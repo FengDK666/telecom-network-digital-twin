@@ -73,7 +73,7 @@ def rank_root_causes(
         predicted = descendants(node.node_id, children)
         explained = len(observed & predicted)
         precision = explained / len(predicted)
-        recall = explained / len(observed)
+        recall = explained / len(observed) if observed else 0.0
         root_bonus = 0.08 if node.node_id in observed else 0.0
         score = 0.72 * recall + 0.28 * precision + root_bonus
         rows.append(

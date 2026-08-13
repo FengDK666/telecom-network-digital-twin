@@ -1,4 +1,9 @@
-from telecom_twin.root_cause import build_scenarios, evaluate_root_cause, hierarchy_children
+from telecom_twin.root_cause import (
+    build_scenarios,
+    evaluate_root_cause,
+    hierarchy_children,
+    rank_root_causes,
+)
 from telecom_twin.topology import generate_topology
 
 
@@ -19,6 +24,13 @@ def test_same_tier_core_ring_is_not_a_causal_parent_edge() -> None:
     children = hierarchy_children(links)
     assert "core-02" not in children["core-01"]
     assert "aggregation-01" in children["core-01"]
+
+
+def test_empty_alarm_set_returns_deterministic_no_evidence_ranking() -> None:
+    nodes, links = generate_topology()
+    ranking = rank_root_causes((), nodes, links)
+    assert len(ranking) == len(nodes)
+    assert all(row["score"] == 0 for row in ranking)
 
 
 def test_topology_aware_root_cause_finds_all_three_roots() -> None:

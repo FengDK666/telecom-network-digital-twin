@@ -10,6 +10,8 @@ The first phase uses a deterministic in-memory digital-twin snapshot:
    delta/heartbeat strategies.
 5. `api.py` exposes a read-only FastAPI interface over the generated snapshot.
 6. `experiment.py` writes portable CSV files and a deterministic PNG.
+7. `robustness.py` generates timed noisy fault trials, performs balanced
+   evaluation, and exports a role-stratified accuracy figure.
 
 The API and experiment paths call the same topology, simulation, alarm, and
 protocol functions. There is no duplicate hidden implementation for the demo.

@@ -52,6 +52,29 @@ first in all three included scenarios (Top-1 and Top-3 accuracy both 100%).
 This small synthetic evaluation demonstrates the method but is not evidence of
 production fault-localization accuracy.
 
+## Monte Carlo robustness benchmark
+
+Phase 3 expands the evaluation to **4,860 deterministic trials**: all 27 nodes
+as possible roots, 0/20/40% missing alarms, 0/2/4 false alarms, and 20 seeded
+repeats per combination. A temporal model assumes downstream alarms propagate
+three seconds per hierarchy hop and compares this signal with topology-only
+ranking.
+
+| Metric (role-macro average) | Topology only | Topology + time |
+|---|---:|---:|
+| Top-1 accuracy | 69.56% | **74.75%** |
+| Top-3 accuracy | 84.66% | **87.85%** |
+| Worst-noise Top-1 | 41.39% | **53.70%** |
+
+![Root-cause robustness](results/figures/root_cause_robustness.png)
+
+The macro average weights access, aggregation, and core tiers equally. Under
+40% missing alarms plus four false alarms, temporal Top-1 accuracy is 12.78%
+for access roots, 58.33% for aggregation roots, and 90.00% for core roots.
+The weak access result is expected: a leaf fault has only one causal alarm, so
+losing it leaves little evidence. The repository reports this failure mode
+rather than hiding it in a node-count-weighted overall accuracy.
+
 ## Quick start
 
 ```bash
@@ -61,6 +84,7 @@ python -m pip install -e '.[dev]'
 ruff check .
 pytest -q
 telecom-twin experiment --output-dir results
+telecom-twin benchmark --output-dir results --trials-per-root 20
 telecom-twin serve --host 127.0.0.1 --port 8000
 ```
 
@@ -84,6 +108,10 @@ results/            Curated metrics and figure
 - The first phase uses one injected incident and in-memory API state.
 - The adaptive strategy is evaluated only against the included synthetic
   workload; it is not claimed to be universally optimal.
+- Phase 3 timing assumes a fixed three seconds per causal hop plus small seeded
+  jitter. It demonstrates temporal evidence, not a calibrated network delay model.
+- The benchmark covers single faults only. Simultaneous faults, topology errors,
+  and alarm suppression policies are not yet modeled.
 - No availability, cybersecurity, or service-level guarantees are implied.
 
 ## License
