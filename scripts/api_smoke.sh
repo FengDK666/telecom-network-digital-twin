@@ -2,7 +2,9 @@
 set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
-. .venv/bin/activate
+if [[ -f .venv/bin/activate ]]; then
+    . .venv/bin/activate
+fi
 
 uvicorn telecom_twin.api:app --host 127.0.0.1 --port 8765 > /tmp/telecom-twin-api.log 2>&1 &
 server_pid=$!
