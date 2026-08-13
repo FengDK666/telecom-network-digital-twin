@@ -12,6 +12,10 @@ The first phase uses a deterministic in-memory digital-twin snapshot:
 6. `experiment.py` writes portable CSV files and a deterministic PNG.
 7. `robustness.py` generates timed noisy fault trials, performs balanced
    evaluation, and exports a role-stratified accuracy figure.
+8. `online.py` replays telemetry by simulation timestamp, maintains the latest
+   per-node state, applies rolling anomaly detection, and exports evaluation artifacts.
+9. `dashboard.py` contains a dependency-free HTML/JavaScript topology view that
+   consumes the live state through REST and Server-Sent Events (SSE).
 
 The API and experiment paths call the same topology, simulation, alarm, and
 protocol functions. There is no duplicate hidden implementation for the demo.
@@ -24,7 +28,25 @@ protocol functions. There is no duplicate hidden implementation for the demo.
 - `GET /alarms?limit=100`
 - `GET /experiments/protocols`
 - `GET /experiments/root-cause`
+- `GET /dashboard`
+- `GET /live/state`
+- `POST /live/reset`
+- `POST /live/step?steps=1`
+- `GET /live/events?limit=100`
+- `GET /live/stream?interval_ms=250`
 
 FastAPI supplies an OpenAPI document and interactive documentation at `/docs`.
 The API runs on loopback by default and does not include authentication because
 it exposes only deterministic synthetic data.
+
+## Online execution model
+
+`OnlineTwin` groups the deterministic source samples into one-second frames.
+Advancing a frame updates all 27 nodes atomically under a lock, evaluates each
+sample against the node's prior rolling baseline, and then publishes a coherent
+snapshot. SSE clients receive one JSON snapshot per frame. The replay stops at
+300 s instead of looping, so repeated tests have an unambiguous terminal state.
+
+This design demonstrates online state transitions and streaming API behavior
+without claiming a distributed or hard-real-time architecture. The same engine
+backs manual REST stepping, SSE streaming, tests, and the exported evaluation.

@@ -7,3 +7,5 @@ ruff check .
 pytest -q
 telecom-twin experiment --output-dir /tmp/telecom-twin-verification
 telecom-twin benchmark --output-dir /tmp/telecom-twin-benchmark --trials-per-root 2
+telecom-twin online-evaluation --output-dir /tmp/telecom-twin-online
+scripts/api_smoke.sh

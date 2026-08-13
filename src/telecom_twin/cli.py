@@ -8,6 +8,7 @@ from pathlib import Path
 import uvicorn
 
 from telecom_twin.experiment import run_experiment
+from telecom_twin.online import export_online_evaluation
 from telecom_twin.robustness import run_benchmark
 
 
@@ -22,6 +23,8 @@ def main() -> None:
     benchmark = subparsers.add_parser("benchmark")
     benchmark.add_argument("--output-dir", type=Path, default=Path("results"))
     benchmark.add_argument("--trials-per-root", type=int, default=20)
+    online = subparsers.add_parser("online-evaluation")
+    online.add_argument("--output-dir", type=Path, default=Path("results"))
     args = parser.parse_args()
     if args.command == "experiment":
         for name, path in run_experiment(args.output_dir).items():
@@ -31,6 +34,10 @@ def main() -> None:
         for name, path in run_benchmark(
             args.output_dir, trials_per_root=args.trials_per_root
         ).items():
+            print(f"{name}: {path}")
+        return
+    if args.command == "online-evaluation":
+        for name, path in export_online_evaluation(args.output_dir).items():
             print(f"{name}: {path}")
         return
     uvicorn.run("telecom_twin.api:app", host=args.host, port=args.port)

@@ -2,7 +2,8 @@
 
 A reproducible synthetic telecom-network operations project with hierarchical
 topology generation, deterministic telemetry, congestion incident injection,
-alarm analysis, management-protocol simulation, and a FastAPI read API.
+alarm analysis, management-protocol simulation, online anomaly detection, and
+a live FastAPI/SSE digital-twin dashboard.
 
 ![MVP topology and protocol comparison](results/figures/mvp_summary.png)
 
@@ -75,6 +76,32 @@ The weak access result is expected: a leaf fault has only one causal alarm, so
 losing it leaves little evidence. The repository reports this failure mode
 rather than hiding it in a node-count-weighted overall accuracy.
 
+## Live digital twin and online detection
+
+Phase 4 adds a thread-safe replay engine that advances the same 27-node model
+one simulated second at a time. Each node maintains its latest telemetry and a
+rolling 60-sample baseline. A one-sided z-score detector evaluates latency,
+packet loss, and CPU before updating that baseline, after a 30-sample warm-up.
+
+The deterministic 301-second evaluation processes **8,127 node-seconds**. It
+detects the declared `access-07` congestion at 124 s, **one second after the
+123 s incident start**, with six anomaly events inside the incident and zero
+events outside it for this included workload.
+
+| Online evaluation metric | Result |
+|---|---:|
+| Samples processed | 8,127 |
+| Detection delay | **1 s** |
+| Incident anomaly events | 6 |
+| Non-incident events | 0 |
+| False events / 1,000 node-seconds | 0.0 |
+
+![Online anomaly detection](results/figures/online_detection.png)
+
+The browser dashboard at `/dashboard` renders live topology health and anomaly
+events from a Server-Sent Events stream. REST endpoints also support explicit
+reset, step, snapshot, and event-feed operations for deterministic testing.
+
 ## Quick start
 
 ```bash
@@ -85,10 +112,12 @@ ruff check .
 pytest -q
 telecom-twin experiment --output-dir results
 telecom-twin benchmark --output-dir results --trials-per-root 20
+telecom-twin online-evaluation --output-dir results
 telecom-twin serve --host 127.0.0.1 --port 8000
 ```
 
 Interactive API documentation is then available at `http://127.0.0.1:8000/docs`.
+The live dashboard is available at `http://127.0.0.1:8000/dashboard`.
 
 ## Repository structure
 
@@ -112,6 +141,12 @@ results/            Curated metrics and figure
   jitter. It demonstrates temporal evidence, not a calibrated network delay model.
 - The benchmark covers single faults only. Simultaneous faults, topology errors,
   and alarm suppression policies are not yet modeled.
+- Phase 4 is a deterministic in-process replay, not Kafka, an SNMP collector,
+  a distributed stream processor, or a production telemetry pipeline.
+- The zero false-event count applies only to the included synthetic replay; it
+  is not a general false-positive-rate claim or a calibrated production model.
+- The dashboard stores state in memory and provides no authentication, durable
+  storage, horizontal scaling, or multi-user isolation.
 - No availability, cybersecurity, or service-level guarantees are implied.
 
 ## License

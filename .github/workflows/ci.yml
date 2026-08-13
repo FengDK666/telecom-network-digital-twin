@@ -21,3 +21,5 @@ jobs:
       - run: pytest -q
       - run: telecom-twin experiment --output-dir /tmp/telecom-twin-results
       - run: telecom-twin benchmark --output-dir /tmp/telecom-twin-benchmark --trials-per-root 2
+      - run: telecom-twin online-evaluation --output-dir /tmp/telecom-twin-online
+      - run: scripts/api_smoke.sh
